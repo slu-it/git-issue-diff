@@ -1,14 +1,40 @@
 {
+  "issueKeyPattern": "EX-\\d+",
   "repositories": [
     {
       "name": "example_1",
-      "url": "git@github.com:slu-it/git-issue-diff__ex-rep-1.git",
+      "url": "git@github.com:slu-it/git-issue-diff__example_repository.git",
       "active": true,
       "diff": {
         "start": "v1.0.0",
         "end": "v1.1.0"
       }
+    },
+    {
+      "name": "example_2",
+      "url": "git@github.com:slu-it/git-issue-diff__example_repository.git",
+      "active": true,
+      "diff": {
+        "end": "v1.1.0"
+      }
+    },
+    {
+      "name": "example_3",
+      "url": "git@github.com:slu-it/git-issue-diff__example_repository.git",
+      "active": true,
+      "diff": {
+        "start": "v1.0.0"
+      }
+    },
+    {
+      "name": "example_4",
+      "url": "git@github.com:slu-it/git-issue-diff__example_repository.git",
+      "active": true
+    },
+    {
+      "name": "example_5",
+      "url": "git@github.com:slu-it/git-issue-diff__example_repository.git",
+      "active": false
     }
-  ],
-  "issueKeyPattern": "EX-\\d+"
+  ]
 }
