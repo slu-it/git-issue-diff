@@ -23,33 +23,28 @@ class RepositoryDefinition:
         self.end = dict(diff).get('end') if diff is not None else None
 
 
-def execute(configuration: dict):
-    working_directory = create_working_directory()
-    try:
-        for definition in map(RepositoryDefinition, configuration['repositories']):
-            if not definition.active:
-                continue
+def execute(working_directory: Path, configuration: dict):
+    for definition in map(RepositoryDefinition, configuration['repositories']):
+        if not definition.active:
+            continue
 
-            print()
-            print('### PROCESSING {} ###'.format(definition.name))
-            print()
+        print()
+        print('### PROCESSING {} ###'.format(definition.name))
+        print()
 
-            repository = clone(working_directory, definition)
+        repository = clone(working_directory, definition)
 
-            relevant_messages = []
-            for commit in commits_between_start_and_end(repository, definition):
-                relevant_messages.append(commit.message)
+        relevant_messages = []
+        for commit in commits_between_start_and_end(repository, definition):
+            relevant_messages.append(commit.message)
 
-            issue_keys = set([])
-            for message in relevant_messages:
-                for found in re.findall(configuration['issueKeyPattern'], message):
-                    issue_keys.add(found)
+        issue_keys = set([])
+        for message in relevant_messages:
+            for found in re.findall(configuration['issueKeyPattern'], message):
+                issue_keys.add(found)
 
-            print()
-            print('Issue Keys: {}'.format(', '.join(issue_keys)))
-
-    finally:
-        shutil.rmtree(working_directory)
+        print()
+        print('Issue Keys: {}'.format(', '.join(issue_keys)))
 
 
 def clone(working_directory: Path, repository: RepositoryDefinition) -> Repo:
@@ -89,15 +84,8 @@ def commits_between_start_and_end(repository: Repo, definition: RepositoryDefini
     return relevant_commits
 
 
-def get_base_directory() -> Path:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', default='.', help='name of the directory to use')
-    args = parser.parse_args()
-    return Path(str(args.d))
-
-
-def short_sha(commit: Commit) -> string:
-    return commit.hexsha[:10]
+def short_sha(commit: Commit, length: int = 10) -> string:
+    return commit.hexsha[:length]
 
 
 def create_working_directory() -> Path:
@@ -106,12 +94,24 @@ def create_working_directory() -> Path:
     return directory
 
 
+def get_base_directory() -> Path:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', default='.', help='name of the directory to use')
+    args = parser.parse_args()
+    return Path(str(args.d))
+
+
 # SCRIPT START
 
 base_directory = get_base_directory()
 assert base_directory.is_dir()
 
 with base_directory.joinpath('config.json').open('r') as jsonFile:
-    execute(json.load(jsonFile))
+    cfg = json.load(jsonFile)
+    wd = create_working_directory()
+    try:
+        execute(wd, cfg)
+    finally:
+        shutil.rmtree(wd)
 
 # SCRIPT END
